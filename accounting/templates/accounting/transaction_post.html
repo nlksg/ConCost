@@ -1,0 +1,31 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Post Journal{% endblock %}
+{% block content %}
+<h1>Post/Approve Journal</h1>
+<p>Description: {{ transaction.description }}</p>
+<p>Date: {{ transaction.date }}</p>
+<p>Site: {{ transaction.site }}</p>
+<ul>
+    {% for entry in transaction.entries.all %}
+        <li>{{ entry.account.name }}: Debit {{ entry.debit }} / Credit {{ entry.credit }}</li>
+    {% endfor %}
+</ul>
+<p>Posted: {% if transaction.posted %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-warning">No</span>{% endif %}</p>
+<p>Approved: {% if transaction.approved %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</p>
+<p>Locked: {% if transaction.locked %}<span class="badge bg-secondary">Locked</span>{% else %}<span class="badge bg-info">Open</span>{% endif %}</p>
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+{% if is_approver and not transaction.locked %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="approve" class="btn btn-success">Approve & Lock</button>
+    <button type="submit" name="lock" class="btn btn-secondary">Lock Only</button>
+</form>
+{% elif transaction.locked %}
+    <div class="alert alert-info">This journal is locked and cannot be modified.</div>
+{% else %}
+    <div class="alert alert-warning">You do not have permission to approve or lock this journal.</div>
+{% endif %}
+<a href="{% url 'accounting:journal_list' %}" class="btn btn-link mt-3">Back to Journals</a>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'accounting/base.html' %}
+{% block title %}New Capital Contribution{% endblock %}
+{% block content %}
+<h1>New Capital Contribution</h1>
+<form method="post" class="bg-white p-4 rounded shadow-sm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+<a href="{% url 'accounting:capital_contribution_list' %}" class="btn btn-link mt-3">Back to Contributions</a>
+{% endblock %}

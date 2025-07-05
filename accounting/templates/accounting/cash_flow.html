@@ -1,0 +1,15 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Cash Flow Statement{% endblock %}
+{% block content %}
+<h2>Cash Flow Statement</h2>
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3"><input type="date" name="start" value="{{ period_start }}" class="form-control" placeholder="Start date"></div>
+    <div class="col-md-3"><input type="date" name="end" value="{{ period_end }}" class="form-control" placeholder="End date"></div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+</form>
+<table class="table table-bordered table-striped">
+    <tr><th>Cash Inflow</th><td>{{ inflow|floatformat:2 }}</td></tr>
+    <tr><th>Cash Outflow</th><td>{{ outflow|floatformat:2 }}</td></tr>
+    <tr><th>Net Cash Flow</th><td>{{ net_cash|floatformat:2 }}</td></tr>
+</table>
+{% endblock %}

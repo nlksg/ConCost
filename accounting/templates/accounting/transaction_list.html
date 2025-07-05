@@ -1,0 +1,50 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Journals{% endblock %}
+{% block content %}
+<h1>Journals</h1>
+<a href="{% url 'accounting:journal_create' %}" class="btn btn-primary mb-3">Add New Journal</a>
+<div class="table-responsive">
+<table class="table table-bordered table-striped bg-white">
+    <thead class="table-dark">
+    <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Site</th>
+        <th>Entries</th>
+        <th>Posted</th>
+        <th>Approved</th>
+        <th>Locked</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for journal in transactions %}
+    <tr>
+        <td>{{ journal.date }}</td>
+        <td>{{ journal.description }}</td>
+        <td>{{ journal.site }}</td>
+        <td>
+            <ul class="mb-0">
+            {% for entry in journal.entries.all %}
+                <li>{{ entry.account.name }}: Debit {{ entry.debit }} / Credit {{ entry.credit }}</li>
+            {% endfor %}
+            </ul>
+        </td>
+        <td>{% if journal.posted %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-warning">No</span>{% endif %}</td>
+        <td>{% if journal.approved %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-danger">No</span>{% endif %}</td>
+        <td>{% if journal.locked %}<span class="badge bg-secondary">Locked</span>{% else %}<span class="badge bg-info">Open</span>{% endif %}</td>
+        <td>
+            {% if not journal.locked and is_approver %}
+                <a href="{% url 'accounting:journal_post' journal.pk %}" class="btn btn-sm btn-success">Approve/Lock</a>
+            {% elif not journal.locked %}
+                <span class="text-muted">No permission</span>
+            {% else %}
+                <span class="text-muted">Locked</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

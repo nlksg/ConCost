@@ -1,0 +1,45 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Balance Sheet{% endblock %}
+{% block content %}
+<h1>Balance Sheet</h1>
+<h2>Assets</h2>
+<div class="table-responsive">
+<table class="table table-bordered table-striped bg-white">
+    <thead class="table-dark"><tr><th>Account</th><th>Balance</th></tr></thead>
+    <tbody>
+    {% for b in assets %}
+    <tr><td>{{ b.account.account_code }} - {{ b.account.name }}</td><td>{{ b.balance|floatformat:2 }}</td></tr>
+    {% endfor %}
+    <tr class="table-secondary"><th>Total Assets</th><th>{{ total_assets|floatformat:2 }}</th></tr>
+    </tbody>
+</table>
+</div>
+<h2>Liabilities</h2>
+<div class="table-responsive">
+<table class="table table-bordered table-striped bg-white">
+    <thead class="table-dark"><tr><th>Account</th><th>Balance</th></tr></thead>
+    <tbody>
+    {% for b in liabilities %}
+    <tr><td>{{ b.account.account_code }} - {{ b.account.name }}</td><td>{{ b.balance|floatformat:2 }}</td></tr>
+    {% endfor %}
+    <tr class="table-secondary"><th>Total Liabilities</th><th>{{ total_liabilities|floatformat:2 }}</th></tr>
+    </tbody>
+</table>
+</div>
+<h2>Equity</h2>
+<div class="table-responsive">
+<table class="table table-bordered table-striped bg-white">
+    <thead class="table-dark"><tr><th>Account</th><th>Balance</th></tr></thead>
+    <tbody>
+    {% for b in equity %}
+    <tr><td>{{ b.account.account_code }} - {{ b.account.name }}</td><td>{{ b.balance|floatformat:2 }}</td></tr>
+    {% endfor %}
+    <tr class="table-secondary"><th>Total Equity</th><th>{{ total_equity|floatformat:2 }}</th></tr>
+    </tbody>
+</table>
+</div>
+<h2>Check</h2>
+<p><b>Total Assets = {{ total_assets|floatformat:2 }}</b></p>
+<p><b>Total Liabilities + Equity = {{ total_liabilities|floatformat:2 }} + {{ total_equity|floatformat:2 }} = {{ total_liabilities|add:total_equity|floatformat:2 }}</b></p>
+<a href="{% url 'accounting:journal_list' %}" class="btn btn-link mt-3">Back to Journals</a>
+{% endblock %}

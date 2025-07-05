@@ -1,0 +1,27 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Capital Contributions{% endblock %}
+{% block content %}
+<h1>Capital Contributions</h1>
+<a href="{% url 'accounting:capital_contribution_create' %}" class="btn btn-primary mb-3">Add New Contribution</a>
+<div class="table-responsive">
+<table class="table table-bordered table-striped bg-white">
+    <thead class="table-dark">
+    <tr>
+        <th>Date</th>
+        <th>Shareholder</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for c in contributions %}
+    <tr>
+        <td>{{ c.date }}</td>
+        <td>{{ c.shareholder.name }}</td>
+        <td>{{ c.amount }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+<a href="{% url 'accounting:journal_list' %}" class="btn btn-link mt-3">Back to Journals</a>
+{% endblock %}

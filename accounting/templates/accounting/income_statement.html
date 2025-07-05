@@ -1,0 +1,23 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Income Statement{% endblock %}
+{% block content %}
+<h2>Income Statement</h2>
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3"><input type="date" name="start" value="{{ period_start }}" class="form-control" placeholder="Start date"></div>
+    <div class="col-md-3"><input type="date" name="end" value="{{ period_end }}" class="form-control" placeholder="End date"></div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+</form>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark"><tr><th>Account</th><th>Balance</th></tr></thead>
+    <tbody>
+        {% for row in rows %}
+        <tr><td>{{ row.account.name }}</td><td>{{ row.balance|floatformat:2 }}</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="mt-3">
+    <strong>Total Income:</strong> {{ income|floatformat:2 }}<br>
+    <strong>Total Expense:</strong> {{ expense|floatformat:2 }}<br>
+    <strong>Net Income:</strong> {{ net_income|floatformat:2 }}
+</div>
+{% endblock %}

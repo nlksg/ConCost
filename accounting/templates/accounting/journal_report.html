@@ -1,0 +1,47 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Journal Report{% endblock %}
+{% block content %}
+<h2>Journal Report</h2>
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <select name="type" class="form-select">
+            <option value="">All Types</option>
+            {% for key, val in journals.0.JOURNAL_TYPES %}
+                <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="approved" class="form-select">
+            <option value="">All Approval</option>
+            <option value="1" {% if request.GET.approved == '1' %}selected{% endif %}>Approved</option>
+            <option value="0" {% if request.GET.approved == '0' %}selected{% endif %}>Not Approved</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="posted" class="form-select">
+            <option value="">All Status</option>
+            <option value="1" {% if request.GET.posted == '1' %}selected{% endif %}>Posted</option>
+            <option value="0" {% if request.GET.posted == '0' %}selected{% endif %}>Draft</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark"><tr><th>Date</th><th>Description</th><th>Type</th><th>Posted</th><th>Approved</th><th>Action</th></tr></thead>
+    <tbody>
+        {% for journal in journals %}
+        <tr>
+            <td>{{ journal.date }}</td>
+            <td>{{ journal.description }}</td>
+            <td>{{ journal.get_journal_type_display }}</td>
+            <td>{% if journal.posted %}<span class="badge bg-success">Posted{% else %}<span class="badge bg-warning">Draft{% endif %}</span></td>
+            <td>{% if journal.approved %}<span class="badge bg-success">Approved{% else %}<span class="badge bg-danger">Not Approved{% endif %}</span></td>
+            <td><a href="{% url 'accounting:journal_post' journal.pk %}" class="btn btn-sm btn-outline-primary">View / Approve</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'accounting/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Ledger for {{ account.name }} ({{ account.get_type_display }})</h2>
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Journal Type</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry, balance in entry_data %}
+            <tr>
+                <td>{{ entry.journal.date }}</td>
+                <td>{{ entry.journal.description }}</td>
+                <td>{{ entry.journal.get_journal_type_display }}</td>
+                <td>{{ entry.debit|floatformat:2 }}</td>
+                <td>{{ entry.credit|floatformat:2 }}</td>
+                <td>{{ balance|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center">No entries for this account.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'accounting:account_list' %}" class="btn btn-secondary">Back</a>
+</div>
+{% endblock %}

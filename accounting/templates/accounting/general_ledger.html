@@ -1,0 +1,23 @@
+{% extends 'accounting/base.html' %}
+{% block title %}General Ledger{% endblock %}
+{% block content %}
+<h2>General Ledger</h2>
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-3"><input type="date" name="start" value="{{ period_start }}" class="form-control" placeholder="Start date"></div>
+    <div class="col-md-3"><input type="date" name="end" value="{{ period_end }}" class="form-control" placeholder="End date"></div>
+    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+</form>
+{% for ledger in ledgers %}
+    <h5 class="mt-4">{{ ledger.account.account_code }} - {{ ledger.account.name }}</h5>
+    <table class="table table-bordered table-sm">
+        <thead class="table-light"><tr><th>Date</th><th>Description</th><th>Debit</th><th>Credit</th></tr></thead>
+        <tbody>
+        {% for entry in ledger.entries %}
+            <tr><td>{{ entry.journal.date }}</td><td>{{ entry.journal.description }}</td><td>{{ entry.debit|floatformat:2 }}</td><td>{{ entry.credit|floatformat:2 }}</td></tr>
+        {% empty %}
+            <tr><td colspan="4" class="text-center">No entries</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Accounts{% endblock %}
+{% block content %}
+<h1>Chart of Accounts</h1>
+<form method="get" class="row g-3 mb-3">
+    <div class="col-md-2">
+        <input type="text" name="code" value="{{ request.GET.code }}" class="form-control" placeholder="Code">
+    </div>
+    <div class="col-md-2">
+        <input type="text" name="name" value="{{ request.GET.name }}" class="form-control" placeholder="Name">
+    </div>
+    <div class="col-md-2">
+        <select name="type" class="form-select">
+            <option value="">All Types</option>
+            {% for key, val in accounts.0.ACCOUNT_TYPES %}
+                <option value="{{ key }}" {% if request.GET.type == key %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="parent" class="form-select">
+            <option value="">All Parents</option>
+            {% for parent in parents %}
+                <option value="{{ parent.pk }}" {% if request.GET.parent == parent.pk|stringformat:'s' %}selected{% endif %}>{{ parent.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="active" class="form-select">
+            <option value="">All Status</option>
+            <option value="1" {% if request.GET.active == '1' %}selected{% endif %}>Active</option>
+            <option value="0" {% if request.GET.active == '0' %}selected{% endif %}>Inactive</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+<div class="table-responsive">
+    <table class="table table-bordered table-striped bg-white">
+        <thead class="table-dark">
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Parent</th>
+            <th>Active</th>
+            <th>Ledger</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% load accounting_extras %}
+        {% for account in account_tree %}
+            {% render_account_tree account 0 %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a href="{% url 'accounting:account_create' %}" class="btn btn-success">Add Root Account</a>
+{% endblock %}

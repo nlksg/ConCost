@@ -1,0 +1,21 @@
+{% extends 'accounting/base.html' %}
+{% block title %}New Journal{% endblock %}
+{% block content %}
+<h1>New Journal</h1>
+<form method="post" class="bg-white p-4 rounded shadow-sm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ formset.management_form }}
+    <table class="table">
+        {% for form in formset %}
+        <tr>
+            <td>{{ form.account.label_tag }} {{ form.account }}</td>
+            <td>{{ form.debit.label_tag }} {{ form.debit }}</td>
+            <td>{{ form.credit.label_tag }} {{ form.credit }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+<a href="{% url 'accounting:journal_list' %}" class="btn btn-link mt-3">Back to Journals</a>
+{% endblock %}

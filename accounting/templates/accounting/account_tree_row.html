@@ -1,0 +1,16 @@
+{% load accounting_extras %}
+<tr{% if not account.active %} class="table-secondary"{% endif %}>
+    <td><span style="display:inline-block; width:{{ level|multiply:20 }}px;"></span>{{ account.account_code }}</td>
+    <td>{{ account.name }}</td>
+    <td>{{ account.get_type_display }}</td>
+    <td>{% if account.parent %}{{ account.parent.name }}{% else %}-{% endif %}</td>
+    <td>{% if account.active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+    <td><a href="{% url 'accounting:account_ledger' account.pk %}" class="btn btn-sm btn-outline-primary">View Ledger</a></td>
+    <td>
+        <a href="{% url 'accounting:account_edit' account.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+        <a href="{% url 'accounting:account_create' %}?parent={{ account.pk }}" class="btn btn-sm btn-outline-success">Add Subaccount</a>
+    </td>
+</tr>
+{% for child in account._children %}
+    {% include 'accounting/account_tree_row.html' with account=child level=level|add:"1" %}
+{% endfor %}
