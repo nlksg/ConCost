@@ -1,4 +1,4 @@
-# ConCost: Construction Company Double-Entry Bookkeeping System
+# ConCost: ***proof of concept*** - Construction Company Double-Entry Bookkeeping System ( under development with github copilot GPT-4.1 and Gemini 2.5 Pro)
 
 This Django project provides a double-entry bookkeeping system for construction companies. It supports:
 
