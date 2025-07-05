@@ -1,0 +1,46 @@
+{% extends 'accounting/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if item %}Edit Item{% else %}Create Item{% endif %}{% endblock %}
+
+{% block content %}
+<h1>{% if item %}Edit Item{% else %}Create Item{% endif %}</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                {% render_field form.name class="form-control" %}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                {% render_field form.description class="form-control" %}
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.item_type.id_for_label }}" class="form-label">Item Type</label>
+                    {% render_field form.item_type class="form-select" %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.unit_of_measure.id_for_label }}" class="form-label">Unit of Measure</label>
+                    {% render_field form.unit_of_measure class="form-control" placeholder="e.g., kg, hour, piece" %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.expense_account.id_for_label }}" class="form-label">Default Expense Account</label>
+                {% render_field form.expense_account class="form-select" %}
+                <div class="form-text">This is the expense account that will be debited when this item is purchased.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save Item</button>
+            <a href="{% url 'purchase:item_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Expense Submitted{% endblock %}
+{% block content %}
+<div class="alert alert-success mt-4">Your expense has been submitted successfully!</div>
+<a href="{% url 'siteexpense:submit_expense' %}" class="btn btn-primary">Submit Another</a>
+<a href="{% url 'siteexpense:expense_list' %}" class="btn btn-secondary ms-2">Back to Expenses</a>
+{% endblock %}

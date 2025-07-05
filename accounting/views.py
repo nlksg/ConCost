@@ -6,12 +6,16 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils import timezone
 
 def index(request):
+    if not request.user.is_authenticated:
+        return render(request, 'accounting/welcome.html')
     return render(request, 'accounting/index.html')
 
+@login_required
 def journal_list(request):
     journals = Journal.objects.select_related('site').all().order_by('-date')
     return render(request, 'accounting/transaction_list.html', {'transactions': journals, 'is_approver': is_approver(request.user)})
 
+@login_required
 def journal_create(request):
     if request.method == 'POST':
         form = JournalForm(request.POST)
@@ -30,6 +34,7 @@ def journal_create(request):
         formset = JournalEntryFormSet()
     return render(request, 'accounting/transaction_form.html', {'form': form, 'formset': formset})
 
+@login_required
 def journal_post(request, pk):
     journal = get_object_or_404(Journal, pk=pk)
     if request.method == 'POST':
@@ -52,10 +57,12 @@ def journal_post(request, pk):
             return redirect('accounting:journal_list')
     return render(request, 'accounting/transaction_post.html', {'transaction': journal, 'is_approver': is_approver(request.user)})
 
+@login_required
 def capital_contribution_list(request):
     contributions = CapitalContribution.objects.select_related('shareholder').order_by('-date')
     return render(request, 'accounting/capital_contribution_list.html', {'contributions': contributions})
 
+@login_required
 def capital_contribution_create(request):
     from .models import Account, JournalEntry
     if request.method == 'POST':
@@ -86,6 +93,7 @@ def capital_contribution_create(request):
         form = CapitalContributionForm()
     return render(request, 'accounting/capital_contribution_form.html', {'form': form})
 
+@login_required
 def balance_sheet(request):
     from .models import Account, JournalEntry
     # Calculate balances for each account

@@ -1,4 +1,5 @@
 {% load static %}
+{% load accounting_extras %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,9 +25,14 @@
             <div class="position-sticky">
                 <h4 class="mt-3 mb-4">Menu</h4>
                 <a href="{% url 'accounting:index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Home</a>
+                <a href="/siteexpense/" class="{% if request.path|startswith:"/siteexpense" %}active{% endif %}">Site Expenses</a>
+                {% if user|is_accountant_or_admin %}
+                <a href="/purchases/" class="{% if request.path|startswith:"/purchases" %}active{% endif %}">Purchases</a>
                 <a href="{% url 'accounting:journal_list' %}" class="{% if request.resolver_match.url_name == 'journal_list' %}active{% endif %}">Journals</a>
                 <a href="{% url 'accounting:capital_contribution_list' %}" class="{% if request.resolver_match.url_name == 'capital_contribution_list' %}active{% endif %}">Capital Contributions</a>
-                <div class="mb-2"><strong>Reports</strong></div>
+                <div class="mb-2 mt-3"><strong>Catalog</strong></div>
+                <a href="{% url 'purchase:item_list' %}" class="{% if request.path|startswith:"/items" %}active{% endif %}">Items</a>
+                <div class="mb-2 mt-3"><strong>Reports</strong></div>
                 <a href="{% url 'accounting:trial_balance' %}" class="{% if request.resolver_match.url_name == 'trial_balance' %}active{% endif %}">Trial Balance</a>
                 <a href="{% url 'accounting:income_statement' %}" class="{% if request.resolver_match.url_name == 'income_statement' %}active{% endif %}">Income Statement</a>
                 <a href="{% url 'accounting:general_ledger' %}" class="{% if request.resolver_match.url_name == 'general_ledger' %}active{% endif %}">General Ledger</a>
@@ -34,6 +40,17 @@
                 <a href="{% url 'accounting:journal_report' %}" class="{% if request.resolver_match.url_name == 'journal_report' %}active{% endif %}">Journal Report</a>
                 <a href="{% url 'accounting:balance_sheet' %}" class="{% if request.resolver_match.url_name == 'balance_sheet' %}active{% endif %}">Balance Sheet</a>
                 <a href="{% url 'accounting:account_list' %}" class="{% if request.resolver_match.url_name == 'account_list' %}active{% endif %}">Chart of Accounts</a>
+                {% endif %}
+                <hr>
+                {% if request.user.is_authenticated %}
+                    <span class="d-block px-3 mb-2">Logged in as <strong>{{ request.user.username }}</strong></span>
+                    <form action="{% url 'logout' %}" method="post" class="d-grid px-3">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light w-100 mb-2">Login</a>
+                {% endif %}
             </div>
         </nav>
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">

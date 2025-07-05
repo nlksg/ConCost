@@ -1,0 +1,14 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <div class="jumbotron bg-white p-5 rounded shadow-sm mt-5">
+        <h1 class="display-4">Welcome to ConCost</h1>
+        <p class="lead">The premier accounting system for construction companies.</p>
+        <hr class="my-4">
+        <p>Please log in to manage your company's finances.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
+    </div>
+</div>
+{% endblock %}

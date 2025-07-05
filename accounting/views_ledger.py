@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Account
 from .forms import AccountForm
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def account_ledger(request, pk):
     account = get_object_or_404(Account, pk=pk)
     entries = account.get_ledger_entries()
@@ -20,6 +22,7 @@ def account_ledger(request, pk):
         'entry_data': entry_data,
     })
 
+
 def build_account_tree(accounts):
     account_dict = {a.pk: a for a in accounts}
     tree = []
@@ -37,6 +40,7 @@ def build_account_tree(accounts):
         attach_children(root)
     return tree
 
+@login_required
 def account_list(request):
     accounts = Account.objects.all().order_by('account_code')
     parents = Account.objects.filter(parent__isnull=True)
@@ -58,6 +62,7 @@ def account_list(request):
     account_tree = build_account_tree(accounts)
     return render(request, 'accounting/account_list.html', {'accounts': accounts, 'parents': parents, 'account_tree': account_tree})
 
+@login_required
 def account_create(request):
     parent_id = request.GET.get('parent')
     if request.method == 'POST':
@@ -72,6 +77,7 @@ def account_create(request):
         form = AccountForm(initial=initial_data)
     return render(request, 'accounting/account_form.html', {'form': form})
 
+@login_required
 def account_edit(request, pk):
     account = get_object_or_404(Account, pk=pk)
     if request.method == 'POST':

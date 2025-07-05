@@ -1,0 +1,39 @@
+{% extends 'accounting/base.html' %}
+{% block title %}Purchases{% endblock %}
+{% block content %}
+<h1>Purchases</h1>
+<a href="{% url 'purchase:purchase_create' %}" class="btn btn-success mb-3">New Purchase</a>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Site</th>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Approved</th>
+            <th>Created By</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for purchase in purchases %}
+        <tr>
+            <td>{{ purchase.id }}</td>
+            <td>{{ purchase.site }}</td>
+            <td>{{ purchase.date }}</td>
+            <td>{{ purchase.description }}</td>
+            <td>{% if purchase.approved %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+            <td>{{ purchase.created_by }}</td>
+            <td>
+                <a href="{% url 'purchase:purchase_edit' purchase.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                {% if not purchase.approved %}
+                <a href="{% url 'purchase:purchase_approve' purchase.id %}" class="btn btn-sm btn-success">Approve & Post</a>
+                {% else %}
+                <span class="text-success">Approved</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

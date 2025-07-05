@@ -1,0 +1,49 @@
+{% extends 'accounting/base.html' %}
+{% load accounting_extras %}
+{% block title %}Site Expenses{% endblock %}
+{% block content %}
+<h1>Submitted Site Expenses</h1>
+<a href="{% url 'siteexpense:submit_expense' %}" class="btn btn-success mb-3">Submit New Expense</a>
+<table class="table table-striped table-bordered bg-white">
+    <thead>
+        <tr>
+            <th>Site</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Date</th>
+            <th>Submitted By</th>
+            <th>Receipt</th>
+            <th>Approved</th>
+            <th>Created At</th>
+            <th>Purchase</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for expense in expenses %}
+        <tr>
+            <td>{{ expense.site }}</td>
+            <td>{{ expense.description }}</td>
+            <td>{{ expense.amount }}</td>
+            <td>{{ expense.date }}</td>
+            <td>{{ expense.submitted_by }}</td>
+            <td>{% if expense.receipt %}<a href="{{ expense.receipt.url }}" target="_blank">View</a>{% else %}-{% endif %}</td>
+            <td>{% if expense.approved %}<span class="badge bg-success">Yes</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+            <td>{{ expense.created_at }}</td>
+            <td>
+                {% if expense.purchase %}
+                    <a href="{% url 'purchase:purchase_edit' expense.purchase.pk %}">View Purchase</a>
+                {% else %}
+                    {% if request.user|in_groups:'Admin,Accountant' %}
+                        <a href="{% url 'purchase:purchase_create' %}?site_expense={{ expense.pk }}" class="btn btn-sm btn-primary">Create Purchase</a>
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="text-center">No expenses submitted yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

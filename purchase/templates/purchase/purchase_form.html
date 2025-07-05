@@ -1,0 +1,244 @@
+{% extends 'accounting/base.html' %}
+{% load widget_tweaks %}
+{% block title %}{% if purchase %}Edit Purchase{% else %}New Purchase{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if purchase %}Edit Purchase{% else %}New Purchase{% endif %}</h1>
+
+{% if site_expense %}
+<div class="alert alert-info">
+    <h5 class="alert-heading">Creating Purchase from Site Expense</h5>
+    <p>This purchase is being created to account for the following submitted site expense:</p>
+    <hr>
+    <p class="mb-0"><strong>Description:</strong> {{ site_expense.description }}</p>
+    <p class="mb-0"><strong>Amount:</strong> ${{ site_expense.amount }}</p>
+    <p class="mb-0"><strong>Submitted by:</strong> {{ site_expense.submitted_by }} on {{ site_expense.date }}</p>
+    {% if site_expense.receipt %}
+    <p class="mb-0"><strong>Receipt:</strong> <a href="{{ site_expense.receipt.url }}" target="_blank">View Receipt</a></p>
+    {% endif %}
+</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {% if site_expense %}
+        <input type="hidden" name="site_expense" value="{{ site_expense.pk }}">
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+            {% render_field form.description class="form-control" %}
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+            {% render_field form.date class="form-control" type="date" %}
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="{{ form.site.id_for_label }}" class="form-label">Site</label>
+            {% render_field form.site class="form-select" %}
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="{{ form.accounts_payable_account.id_for_label }}" class="form-label">Accounts Payable Account</label>
+        {% render_field form.accounts_payable_account class="form-select" %}
+        <div class="form-text">This account will be credited with the total purchase amount.</div>
+    </div>
+
+    <h5 class="mt-4">Purchase Lines</h5>
+    <p>Select items from the catalog. The total will be credited to the Accounts Payable account selected above.</p>
+    {{ formset.management_form }}
+    <div id="formset-container">
+        <table class="table table-bordered bg-white">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 25%;">Item</th>
+                    <th>Description</th>
+                    <th style="width: 10%;">Quantity</th>
+                    <th style="width: 15%;">Unit Price</th>
+                    <th style="width: 10%;">Total</th>
+                    <th style="width: 5%;">Del?</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line_form in formset %}
+                <tr class="formset-row">
+                    <td>
+                        {% render_field line_form.item class="form-select item-select" %}
+                        <div class="invalid-feedback">{{ line_form.item.errors|first }}</div>
+                    </td>
+                    <td>
+                        {% render_field line_form.description class="form-control" %}
+                        <div class="invalid-feedback">{{ line_form.description.errors|first }}</div>
+                    </td>
+                    <td>
+                        {% render_field line_form.quantity class="form-control quantity-input" %}
+                        <div class="invalid-feedback">{{ line_form.quantity.errors|first }}</div>
+                    </td>
+                    <td>
+                        {% render_field line_form.unit_price class="form-control unit-price-input" data-toggle="tooltip" title="Can be overridden" %}
+                        <div class="invalid-feedback">{{ line_form.unit_price.errors|first }}</div>
+                    </td>
+                    <td>
+                        <strong class="line-total">$0.00</strong>
+                    </td>
+                    <td>
+                        {% if line_form.instance.pk or formset.can_delete %}
+                            {% render_field line_form.DELETE class="form-check-input" %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="button" id="add-form" class="btn btn-success btn-sm">+ Add Another Item</button>
+    <hr>
+    <div class="d-flex justify-content-end align-items-center">
+        <h4 class="me-4">Grand Total: <span id="grand-total">$0.00</span></h4>
+        <button type="submit" class="btn btn-primary">Save Purchase</button>
+        <a href="{% url 'purchase:purchase_list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+<!-- Template for new forms -->
+<table style="display: none;">
+    <tr id="empty-form" class="formset-row">
+        <td>
+            {% render_field formset.empty_form.item class="form-select item-select" %}
+        </td>
+        <td>
+            {% render_field formset.empty_form.description class="form-control" %}
+        </td>
+        <td>
+            {% render_field formset.empty_form.quantity class="form-control quantity-input" %}
+        </td>
+        <td>
+            {% render_field formset.empty_form.unit_price class="form-control unit-price-input" %}
+        </td>
+        <td>
+            <strong class="line-total">$0.00</strong>
+        </td>
+        <td>
+            {% if formset.can_delete %}
+                {% render_field formset.empty_form.DELETE class="form-check-input" %}
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Parse the item data passed from the view
+    const itemData = JSON.parse('{{ item_data_json|escapejs }}');
+
+    function updateRow(row) {
+        const itemSelect = row.querySelector('.item-select');
+        const descriptionInput = row.querySelector('input[name$="-description"]');
+        const unitPriceInput = row.querySelector('input[name$="-unit_price"]');
+        
+        const selectedItemId = itemSelect.value;
+
+        if (selectedItemId && itemData[selectedItemId]) {
+            // Only update description and price if the description is empty or matches the old item's description
+            const oldDescription = descriptionInput.value;
+            const oldPrice = unitPriceInput.value;
+            const newItem = itemData[selectedItemId];
+
+            if (oldDescription === '' || oldDescription === itemData[itemSelect.dataset.previousValue]?.description) {
+                 descriptionInput.value = newItem.description;
+            }
+            if (oldPrice === '0' || oldPrice === '0.00' || oldPrice === itemData[itemSelect.dataset.previousValue]?.unit_price) {
+                unitPriceInput.value = newItem.unit_price;
+            }
+        }
+        itemSelect.dataset.previousValue = selectedItemId; // Store current value for next change
+        updateLineTotal(row);
+    }
+
+    function updateLineTotal(row) {
+        const quantityInput = row.querySelector('.quantity-input');
+        const unitPriceInput = row.querySelector('.unit-price-input');
+        const lineTotalEl = row.querySelector('.line-total');
+
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        const total = quantity * unitPrice;
+
+        if (lineTotalEl) {
+            lineTotalEl.textContent = '$' + total.toFixed(2);
+        }
+        updateGrandTotal();
+    }
+
+    function updateGrandTotal() {
+        let grandTotal = 0;
+        document.querySelectorAll('.formset-row').forEach(function(row) {
+            // Only include visible rows that are not marked for deletion
+            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+            if (row.style.display !== 'none' && (!deleteCheckbox || !deleteCheckbox.checked)) {
+                const quantity = parseFloat(row.querySelector('.quantity-input').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('.unit-price-input').value) || 0;
+                grandTotal += quantity * unitPrice;
+            }
+        });
+        document.getElementById('grand-total').textContent = '$' + grandTotal.toFixed(2);
+    }
+
+    // --- Event delegation for dynamic forms ---
+    const formsetContainer = document.getElementById('formset-container');
+
+    formsetContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('item-select')) {
+            updateRow(e.target.closest('.formset-row'));
+        } else if (e.target.matches('input[name$="-DELETE"]')) {
+            // Hide the row instead of just relying on total calculation
+            const row = e.target.closest('.formset-row');
+            if (e.target.checked) {
+                row.style.display = 'none';
+            } else {
+                row.style.display = ''; // Or 'table-row'
+            }
+            updateGrandTotal();
+        }
+    });
+    
+    formsetContainer.addEventListener('input', function(e) {
+        if (e.target.classList.contains('quantity-input') || e.target.classList.contains('unit-price-input')) {
+            updateLineTotal(e.target.closest('.formset-row'));
+        }
+    });
+
+    // --- Add new form ---
+    document.getElementById('add-form').addEventListener('click', function() {
+        const totalForms = document.getElementById('id_purchaseline_set-TOTAL_FORMS');
+        const formIdx = parseInt(totalForms.value);
+        
+        const emptyFormTemplate = document.getElementById('empty-form').cloneNode(true);
+        let newFormHtml = emptyFormTemplate.innerHTML.replace(/__prefix__/g, formIdx);
+        
+        const newRow = document.createElement('tr');
+        newRow.className = 'formset-row';
+        newRow.innerHTML = newFormHtml;
+        
+        document.querySelector('table > tbody').appendChild(newRow);
+        
+        totalForms.value = formIdx + 1;
+    });
+
+    // --- Initial setup ---
+    document.querySelectorAll('.formset-row').forEach(function(row) {
+        // Store initial item value for smarter updates
+        const itemSelect = row.querySelector('.item-select');
+        if(itemSelect) {
+            itemSelect.dataset.previousValue = itemSelect.value;
+        }
+        // Calculate initial totals
+        updateLineTotal(row);
+    });
+    updateGrandTotal(); // Initial grand total calculation
+});
+</script>
+{% endblock %}

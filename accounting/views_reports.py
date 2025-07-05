@@ -3,7 +3,9 @@ from .models import Account, Journal, JournalEntry
 from django.db.models import Sum, Q
 from django.utils import timezone
 from datetime import date
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def trial_balance(request):
     accounts = Account.objects.filter(active=True).order_by('account_code')
     rows = []
@@ -18,6 +20,7 @@ def trial_balance(request):
         total_credit += credit
     return render(request, 'accounting/trial_balance.html', {'rows': rows, 'total_debit': total_debit, 'total_credit': total_credit})
 
+@login_required
 def income_statement(request):
     accounts = Account.objects.filter(type__in=['income', 'expense'], active=True).order_by('account_code')
     period_start = request.GET.get('start', '')
@@ -43,6 +46,7 @@ def income_statement(request):
     net_income = income - expense
     return render(request, 'accounting/income_statement.html', {'rows': rows, 'income': income, 'expense': expense, 'net_income': net_income, 'period_start': period_start, 'period_end': period_end})
 
+@login_required
 def general_ledger_report(request):
     accounts = Account.objects.filter(active=True).order_by('account_code')
     period_start = request.GET.get('start', '')
@@ -57,6 +61,7 @@ def general_ledger_report(request):
         ledgers.append({'account': account, 'entries': entries})
     return render(request, 'accounting/general_ledger.html', {'ledgers': ledgers, 'period_start': period_start, 'period_end': period_end})
 
+@login_required
 def cash_flow_statement(request):
     # Simple cash flow: sum all cash/bank account movements
     cash_accounts = Account.objects.filter(type='asset', name__icontains='cash') | Account.objects.filter(type='asset', name__icontains='bank')
@@ -72,6 +77,7 @@ def cash_flow_statement(request):
     net_cash = inflow - outflow
     return render(request, 'accounting/cash_flow.html', {'inflow': inflow, 'outflow': outflow, 'net_cash': net_cash, 'period_start': period_start, 'period_end': period_end})
 
+@login_required
 def journal_report(request):
     journals = Journal.objects.all().order_by('-date')
     journal_type = request.GET.get('type', '')

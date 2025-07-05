@@ -19,5 +19,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounting.urls')),
+    path('siteexpense/', include('SiteExpense.urls', namespace='siteexpense')),
+    path('purchases/', include('purchase.urls', namespace='purchase')),
+    path('accounting/', include('accounting.urls', namespace='accounting')),
+    path('accounts/', include('django.contrib.auth.urls')),  # Add this line for login/logout
+    path('', include('accounting.urls', namespace='accounting')),
 ]

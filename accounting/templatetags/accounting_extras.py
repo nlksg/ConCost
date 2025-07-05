@@ -3,9 +3,24 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+@register.filter(name='in_groups')
+def in_groups(user, group_names):
+    """Check if a user is in any of the given group names (comma-separated)."""
+    if user.is_authenticated:
+        group_list = [g.strip() for g in group_names.split(',')]
+        return user.groups.filter(name__in=group_list).exists() or user.is_superuser
+    return False
+
 @register.filter
 def multiply(value, arg):
     return value * arg
+
+@register.filter
+def startswith(text, starts):
+    """Returns True if the value starts with the given argument."""
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
 
 @register.simple_tag(takes_context=True)
 def render_account_tree(context, account, level=0):
@@ -24,3 +39,7 @@ def render_account_tree(context, account, level=0):
     for child in getattr(account, '_children', []):
         output.append(render_account_tree(context, child, level+1))
     return mark_safe(''.join(output))
+
+@register.filter(name='is_accountant_or_admin')
+def is_accountant_or_admin(user):
+    return user.groups.filter(name__in=['Accountant', 'Admin']).exists()
