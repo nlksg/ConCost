@@ -11,8 +11,13 @@ class ItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from accounting.models import Account # Lazy import
-        self.fields['expense_account'].queryset = Account.objects.filter(account_type='expense').order_by('name')
+        from accounting.models import Account  # Lazy import
+        qs = Account.objects.filter(type='expense').order_by('name')
+        # If editing, ensure the current value is included even if not in qs
+        if self.instance and self.instance.pk and self.instance.expense_account:
+            current = Account.objects.filter(pk=self.instance.expense_account.pk)
+            qs = (qs | current).distinct()
+        self.fields['expense_account'].queryset = qs
 
 class PurchaseForm(forms.ModelForm):
     class Meta:
