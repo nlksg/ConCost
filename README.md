@@ -2,7 +2,6 @@
 
 *This project is under active development as a proof-of-concept, built with the assistance of AI models.*
 
-
 This is a comprehensive, GAAP-compliant double-entry bookkeeping system built with Django, designed specifically for the construction industry. It facilitates a robust workflow from on-site expense submission to final accounting and reporting.
 
 ## Key Features
@@ -11,28 +10,28 @@ This is a comprehensive, GAAP-compliant double-entry bookkeeping system built wi
 - **Hierarchical Chart of Accounts**: Supports complex account structures with parent-child relationships.
 - **Multi-Site Management**: Track finances for individual construction sites as well as the entire company.
 - **Site Expense Workflow**: A simple interface for site staff to submit expenses with receipts for approval.
-- **Purchase Management**: A workflow for accountants to create multi-line purchases, convert site expenses into formal purchases, and manage approvals.
-- **Item Catalog**: A centralized catalog of materials and services, each linked to a default expense account, ensuring consistent and accurate expense tracking.
-- **Role-Based Permissions**: Secure workflows for different user roles (Admin, Accountant, Site Staff).
-- **Financial Reporting**: Includes Trial Balance, Income Statement, General Ledger, Balance Sheet, and more.
+- **Purchase Management**: Accountants can create multi-line purchases, convert site expenses into formal purchases, and manage approvals.
+- **Item Catalog**: Centralized catalog of materials/services, each linked to a default expense account for accurate tracking.
+- **Role-Based Permissions**: Secure workflows for Admin, Accountant, and Site Staff roles.
+- **Financial Reporting**: Trial Balance, Income Statement, General Ledger, Balance Sheet, and more.
+- **Admin Tools**: Management commands to purge data, initialize default chart of accounts, and create default user groups.
+- **Mobile-Friendly UI**: Responsive design for use on phones and tablets.
 
 ## Core Applications
 
-- `accounting`: Contains the core bookkeeping models (`Account`, `Journal`, `JournalEntry`), reporting views, and capital contribution tracking.
-- `SiteExpense`: Provides the interface for site personnel to submit expense requests.
-- `purchase`: Manages the item catalog, purchase orders, and the approval process that generates journal entries.
+- `accounting`: Core bookkeeping models (`Account`, `Journal`, `JournalEntry`), reporting, and capital contributions.
+- `SiteExpense`: Interface for site personnel to submit expense requests with receipts.
+- `purchase`: Manages the item catalog, purchase orders, and approval workflow that generates journal entries.
 
 ## User Roles & Workflow
 
-The system is designed around a typical workflow involving different user roles:
-
-1.  **Site Staff**: Submits a `SiteExpense` with a description, amount, date, and an optional receipt image.
-2.  **Accountant**: 
+- **Site Staff**: Submits a `SiteExpense` with a description, amount, date, and optional receipt image.
+- **Accountant**: 
     - Reviews pending site expenses.
-    - Creates a formal `Purchase` from a site expense, adding line items by selecting from the `Item` catalog.
-    - Manages the `Item` catalog, defining default expense accounts for each item.
-    - Approves `Purchase` orders, which automatically generates the correct double-entry `Journal` records.
-3.  **Admin**: Has full access to the system, including user and group management.
+    - Creates a formal `Purchase` from a site expense, adding line items from the `Item` catalog.
+    - Manages the `Item` catalog and default expense accounts.
+    - Approves `Purchase` orders, which automatically generate double-entry `Journal` records.
+- **Admin**: Full access, including user/group management and admin tools for data reset and initialization.
 
 ## Getting Started
 
@@ -54,9 +53,12 @@ The system is designed around a typical workflow involving different user roles:
     ```
 5.  **Initial Setup (Required)**:
     - Log in to the admin panel (`/admin`).
-    - Create three user groups: `Admin`, `Accountant`, and `Site Staff`.
-    - Create user accounts for your team and assign them to the appropriate groups.
-    - Populate the Chart of Accounts, or ensure the initial migrations have created the necessary default accounts (e.g., Accounts Payable, expense accounts).
+    - Run management commands to create default groups and chart of accounts:
+      ```bash
+      python manage.py init_default_groups
+      python manage.py init_chart_of_accounts
+      ```
+    - Create user accounts and assign them to the appropriate groups.
     - Populate the Item Catalog via the UI (`/purchases/items/`).
 
 ---
